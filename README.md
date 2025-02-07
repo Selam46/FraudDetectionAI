@@ -35,28 +35,6 @@ In Task 1, the following steps are executed:
 7. **Encode Categorical Features**:
    - Apply encoding techniques to convert categorical features into numerical format for analysis.
 
-### Project Structure
-
-FraudDetectionAI/
-│
-├── data/
-│   ├── raw/
-│   │   ├── Fraud_Data.csv
-│   │   └── IpAddress_to_Country.csv
-│   └── processed/
-│       ├── train_data.csv
-│       └── test_data.csv
-│
-├── notebooks/
-│   ├── 01_data_analysis_preprocessing.ipynb
-│   └── 02_model_preparation.ipynb
-│
-├── src/
-│   ├── data_cleaning.py
-│   └── model_utils.py
-│
-├── requirements.txt
-└── README.md
 
 ### Installation
 
