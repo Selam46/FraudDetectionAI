@@ -35,3 +35,44 @@ In Task 1, the following steps are executed:
 7. **Encode Categorical Features**:
    - Apply encoding techniques to convert categorical features into numerical format for analysis.
 
+### Project Structure
+
+FraudDetectionAI/
+│
+├── data/
+│   ├── raw/
+│   │   ├── Fraud_Data.csv
+│   │   └── IpAddress_to_Country.csv
+│   └── processed/
+│       ├── train_data.csv
+│       └── test_data.csv
+│
+├── notebooks/
+│   ├── 01_data_analysis_preprocessing.ipynb
+│   └── 02_model_preparation.ipynb
+│
+├── src/
+│   ├── data_cleaning.py
+│   └── model_utils.py
+│
+├── requirements.txt
+└── README.md
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Selam46/FraudDetectionAI.git
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
