@@ -35,6 +35,18 @@ In Task 1, the following steps are executed:
 7. **Encode Categorical Features**:
    - Apply encoding techniques to convert categorical features into numerical format for analysis.
 
+## Model Training
+
+### Available Models
+- Logistic Regression
+- Decision Tree
+- Random Forest
+- Gradient Boosting
+- Multi-Layer Perceptron (MLP)
+
+
+### Model Evaluation
+Results and metrics are tracked using MLflow. View results:
 
 ### Installation
 
