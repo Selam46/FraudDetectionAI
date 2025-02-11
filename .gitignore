@@ -17,3 +17,4 @@ models/
 *.pickle
 *.pickle.gz
 *.pickle.bz2
+mlruns/
