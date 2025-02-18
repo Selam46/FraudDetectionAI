@@ -6,3 +6,11 @@ plotly
 scikit-learn
 ipykernel
 jupyter
+torch
+torchvision
+torchaudio
+mlflow
+joblib
+shap
+gunicorn
+python-dotenv
