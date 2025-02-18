@@ -1,20 +1,49 @@
-__pycache__/
+# Ignore virtual environments
 venv/
-*.csv
+.env/
+.virtualenvs/
+
+# Ignore Python cache files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.egg-info/
-*.env
-*.venv/
-models/
-*.joblib
-*.log
-*.pth
-*.pt
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore ML model files and artifacts
 *.pkl
-*.pickle
-*.pickle.gz
-*.pickle.bz2
+*.joblib
+*.h5
+*.onnx
+*.pt
+*.ckpt
+*.tflite
+
+# Ignore MLflow artifacts
 mlruns/
+notebooks/mlruns/
+notebooks/mlruns/*/artifacts/
+notebooks/mlruns/*/artifacts/**
+
+# Ignore large dataset files
+*.csv
+*.tsv
+*.json
+*.parquet
+*.db
+*.sqlite
+*.zip
+*.tar
+*.gz
+
+# Ignore logs and outputs
+logs/
+*.log
+wandb/
+tensorboard_logs/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
