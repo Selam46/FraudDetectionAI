@@ -48,48 +48,51 @@ class MLPModel(nn.Module):
         return x
 
 class CNNModel(nn.Module):
-    def __init__(self, input_shape, filters=[64, 32], kernel_size=3):
+    def __init__(self, input_shape, filters=64, kernel_size=3):
         super(CNNModel, self).__init__()
-        self.conv_layers = nn.ModuleList()
         
-        # First Conv1D layer
-        self.conv_layers.append(
-            nn.Conv1d(input_shape[1], filters[0], kernel_size)
+        # Unpack input shape (timesteps, features)
+        n_channels, n_features = input_shape
+        
+        self.conv_layers = nn.Sequential(
+            nn.Conv1d(in_channels=n_channels,  # number of timesteps as channels
+                     out_channels=filters, 
+                     kernel_size=kernel_size,
+                     padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, padding=1),
+            nn.Conv1d(in_channels=filters,
+                     out_channels=filters*2,
+                     kernel_size=kernel_size,
+                     padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, padding=1)
         )
-        self.conv_layers.append(nn.BatchNorm1d(filters[0]))
-        self.conv_layers.append(nn.ReLU())
-        self.conv_layers.append(nn.MaxPool1d(2))
-        
-        # Additional Conv1D layers
-        for i in range(len(filters)-1):
-            self.conv_layers.append(
-                nn.Conv1d(filters[i], filters[i+1], kernel_size)
-            )
-            self.conv_layers.append(nn.BatchNorm1d(filters[i+1]))
-            self.conv_layers.append(nn.ReLU())
-            self.conv_layers.append(nn.MaxPool1d(2))
         
         # Calculate the size of flattened features
         self.flatten = nn.Flatten()
+        
+        # Use _get_conv_output to calculate the input size for the fully connected layer
+        conv_output_size = self._get_conv_output((1, n_channels, n_features))
+        
         self.fc = nn.Sequential(
-            nn.Linear(self._get_conv_output(input_shape), 32),
+            nn.Linear(conv_output_size, 32),
             nn.ReLU(),
             nn.Dropout(0.3),
             nn.Linear(32, 1),
             nn.Sigmoid()
         )
-        
+
     def _get_conv_output(self, shape):
-        x = torch.zeros(1, *shape)
-        for layer in self.conv_layers:
-            x = layer(x)
+        x = torch.zeros(shape)
+        x = self.conv_layers(x)
         return x.numel()
-    
+
     def forward(self, x):
-        for layer in self.conv_layers:
-            x = layer(x)
+        x = self.conv_layers(x)
         x = self.flatten(x)
-        return self.fc(x)
+        x = self.fc(x)
+        return x
 
 class RNNModel(nn.Module):
     def __init__(self, input_shape, units=[64, 32]):
@@ -116,28 +119,46 @@ class RNNModel(nn.Module):
         return self.fc(x)
 
 class LSTMModel(nn.Module):
-    def __init__(self, input_shape, units=[64, 32]):
+    def __init__(self, input_shape, hidden_size=64, num_layers=2):
         super(LSTMModel, self).__init__()
-        self.lstm_layers = nn.ModuleList()
+        
+        # Unpack input shape (timesteps, features)
+        self.seq_length, self.input_size = input_shape
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
         
         # LSTM layers
         self.lstm = nn.LSTM(
-            input_size=input_shape[1],
-            hidden_size=units[0],
-            num_layers=len(units),
+            input_size=self.input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
             batch_first=True,
-            dropout=0.3
+            dropout=0.3 if num_layers > 1 else 0
         )
         
+        # Fully connected layer
         self.fc = nn.Sequential(
-            nn.Linear(units[0], 1),
+            nn.Linear(hidden_size, 32),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(32, 1),
             nn.Sigmoid()
         )
         
     def forward(self, x):
-        x, _ = self.lstm(x)
-        x = x[:, -1, :]  # Take the last output
-        return self.fc(x)
+        # Initialize hidden state and cell state
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        
+        # Forward propagate LSTM
+        out, _ = self.lstm(x, (h0, c0))
+        
+        # Decode the hidden state of the last time step
+        out = out[:, -1, :]
+        
+        # Pass through fully connected layer
+        out = self.fc(out)
+        return out
 
 def train_evaluate_dl_model(
     model, model_name, train_loader, test_loader,
